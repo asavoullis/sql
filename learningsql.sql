@@ -1,20 +1,21 @@
-#LEARNING SQL - MySQL
+--LEARNING SQL - MySQL w3schools.com
 
--- SQL Server is, by default case insensitive --
---MySQL is a relational database management system
---MySQL is open-source
---MySQL is free
---MySQL is ideal for both small and large applications
---MySQL is very fast, reliable, scalable, and easy to use
---MySQL is cross-platform
---MySQL is compliant with the ANSI SQL standard
---was first released in 1995
--- developed, distributed, and supported by Oracle Corporation
+/*SQL Server is, by default case insensitive --
+MySQL is a relational database management system
+MySQL is open-source
+MySQL is free
+MySQL is ideal for both small and large applications
+MySQL is very fast, reliable, scalable, and easy to use
+MySQL is cross-platform
+MySQL is compliant with the ANSI SQL standardwas first released in 1995
+developed, distributed, and supported by Oracle Corporation 
+*/
+
 
 -- Structured Query Language
 --lets you access and manipulate databases
 
---RDBMS stands for Relational Database Management System.
+--RDBMS: Relational Database Management System.
 
 
 --What is a Database Table?
@@ -25,10 +26,11 @@
 --A record (or row) is each individual entry that exists in a table.
 
 
----
 --Some database systems require a semicolon at the end of each SQL statement.
 
+
 --Semicolon is the standard way to separate each SQL statement in database systems that allow more than one SQL statement to be executed in the same call to the server.
+
 
 /*
 Some of The Most Important SQL Commands
@@ -92,14 +94,19 @@ Operator	Description	Example
 BETWEEN	Between a certain range	
 LIKE	Search for a pattern	
 IN	To specify multiple possible values for a column
-
 */
 
+--WHERE-- 
+
+--Displaying data entries of the database using WHERE
 SELECT * FROM Customers
 WHERE NOT City ='Berlin';
 
 SELECT * FROM Customers
 WHERE Country = 'Germany' AND (City = 'Berlin' OR City = 'Stuttgart');
+
+
+
 
 
 --ORDER BY
@@ -122,30 +129,64 @@ SELECT * FROM Customers
 ORDER BY Country ASC, CustomerName DESC;
 
 
---It is also possible to only insert data in specific columns.
+
+--INSERT INTO--
+
+--Adding entries in the database
+--It is also possible to only add data in specific columns.
 --The following SQL statement will insert a new record, but only insert data in the "CustomerName", "City", and "Country" columns (CustomerID will be updated automatically):
 INSERT INTO Customers (CustomerName, City, Country)
 VALUES ('Cardinal', 'Stavanger', 'Norway');
 
---Checking for null values
+
+
+--SELECT--
+
+--Checking for null values using SELECT
+--from the database Customers display the columns CustomerName, ContactName and Adress where the Address entries are EMPTY (null)
 SELECT CustomerName, ContactName, Address
 FROM Customers
 WHERE Address IS NULL;
 --WHERE Address IS NOT NULL;
 
 
+
+
 --The UPDATE statement is used to modify the existing records in a table.
+
+--Updates the Customers database's entry of CustomerID 1 with the ContactNmae set as Alfred Schmidt and City as Frankfurt
 UPDATE Customers
 SET ContactName = 'Alfred Schmidt', City = 'Frankfurt'
 WHERE CustomerID = 1;
 
---OR
+
+----updates the Customers database's entries which have country se to Mexico with the PostalCode 00000
 UPDATE Customers
 SET PostalCode = 00000
 WHERE Country = 'Mexico';
 
---OR
+
+--updates the customers database's entry of customerID = 32 with the city as Oslo and the Country as Norway
 UPDATE Customers
 SET City = 'Oslo',
 Country = 'Norway'
 WHERE CustomerID = 32;
+
+
+--DELETE
+
+--Delete all the entries of the database that are in the CustomerName column with the entry Alfeds Futterkiste
+--Display it first: 
+--Select * FROM Customers WHERE CustomerName='Alfreds Futterkiste';
+DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
+
+
+
+
+
+
+
+
+
+
+
