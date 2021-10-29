@@ -182,9 +182,94 @@ DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
 
 
 
+--SELECT TOP
+
+--The SELECT TOP clause is used to specify the number of records to return.
+
+--Not all database systems support the SELECT TOP clause. MySQL supports the LIMIT clause to select a limited number of records, while Oracle uses FETCH FIRST n ROWS ONLY and ROWNUM.
+
+
+--selects the first three (using id index) records from the "Customers" table 
+--SQL Server/ MS Access
+SELECT TOP 3 * FROM Customers;
+
+--selects the first three records (using id index) from the "Customers" table
+--MySQL
+SELECT * FROM Customers
+LIMIT 3;
+
+--selects the first three records (using id index) from the "Customers" table
+--ORACLE
+SELECT * FROM Customers
+FETCH FIRST 3 ROWS ONLY;
 
 
 
+--SELECT TOP + PERCENT 
+
+--selects the first 50% of the records from the "Customers" table
+--SQL Server/ Ms Acess
+SELECT TOP 50 PERCENT * FROM Customers;
+
+--selects the first 50% of the records from the "Customers" table
+--ORACLE
+SELECT * FROM Customers
+FETCH FIRST 50 PERCENT ROWS ONLY;
+
+
+
+
+--SELECT TOP + WHERE
+
+--selects the first three records from the "Customers" table, where the country is "Germany"
+--SQL Sever/ MS Access 
+SELECT TOP 3 * FROM Customers
+WHERE Country='Germany';
+
+--MySQL
+SELECT * FROM Customers
+WHERE Country='Germany'
+LIMIT 3;
+
+--Oracle
+SELECT * FROM Customers
+WHERE Country='Germany'
+FETCH FIRST 3 ROWS ONLY;
+
+
+
+--MIN() and MAX() Functions
+
+--MIN() function returns the smallest value of the selected column.
+--MAX() function returns the largest value of the selected column.
+
+--finds the price of the cheapest product
+SELECT MIN(Price) AS SmallestPrice
+FROM Products;
+
+--finds the price of the cheapest product
+SELECT MAX(Price) AS LargestPrice
+FROM Products;
+
+
+
+--COUNT(), AVG() and SUM() Functions
+
+--COUNT() function returns the number of rows that matches a specified criterion.
+--AVG() function returns the average value of a numeric column.
+--SUM() function returns the total sum of a numeric column. 
+
+--finds the number of products
+SELECT COUNT(ProductID)
+FROM Products;
+
+--finds the average price of all products
+SELECT AVG(Price)
+FROM Products;
+
+--finds the sum of the "Quantity" fields in the "OrderDetails" table
+SELECT SUM(Quantity)
+FROM OrderDetails;
 
 
 
