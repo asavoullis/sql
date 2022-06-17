@@ -421,11 +421,17 @@ FROM trip AS t
 GROUP BY start_station
 ORDER BY start_station DESC;
 
---
+-- rank soccer matches in the 2011/2012 season from highest to lowest by total of home_goal and away_goal
+SELECT date, home_goal, away_goal,
+RANK()OVER(ORDER BY home_goal + away_goal DESC) AS ranking
+FROM match
+WHERE season = '2011/2012';
 
-
---
-
+-- use a window function to calculate a partitioned average bicylce trip duration by start_station and sub_type
+SELECT start_station, sub_type, duration,
+AVG(duration) OVER (PARTITION BY start_station, sub_type) AS duration_avg
+FROM trips
+ORDER BY duration;
 
 --
 
