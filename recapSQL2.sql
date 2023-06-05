@@ -265,10 +265,7 @@ LIMIT 5;
 SELECT * FROM people
 
 -- 
-SELECT
-  p1.date,
-  p1.player_name AS home_pl1,
-  p2.player_name AS home_pl2
+SELECT p1.date, p1.player_name AS home_pl1, p2.player_name AS home_pl2
 FROM ( 
   SELECT m.id, p.player_name, m.date  
   FROM match AS m
@@ -322,10 +319,7 @@ FROM players
 WHERE height > 188;
 
 -- write a query to start identifying the first 2 home team players
-SELECT
-  p1.date,
-  p1.player_name AS home_pl1,
-  p2.player_name AS home_pl2
+SELECT p1.date, p1.player_name AS home_pl1, p2.player_name AS home_pl2
 FROM (
 SELECT m.id, p.player_name, m.date
   FROM match AS m
@@ -343,13 +337,11 @@ LIMIT 5;
 
 --
 SELECT id, date,
-CASE WHEN
- h_goal > a_goal THEN 'Home Win'
-    WHEN h_goal = a_goal THEN 'Tie'
+CASE WHEN h_goal > a_goal THEN 'Home Win'
+	WHEN h_goal = a_goal THEN 'Tie'
     WHEN h_goal < a_goal THEN
-CASE WHEN
- a_goal - h_goal < 2 THEN '<2'
-        WHEN a_goal - h_goal >= 2 THEN '2+' 
+CASE WHEN a_goal - h_goal < 2 THEN '<2'
+    WHEN a_goal - h_goal >= 2 THEN '2+' 
 END
 END
  AS diff
@@ -358,20 +350,15 @@ LIMIT 5;
 
 -- use a nested subquery in FROM to extract the two hottest months from a data set of weather in San Francisco
 SELECT mo, mean_high
-FROM ( 
-  SELECT mo, AVG(max_temp_f) AS mean_high
-  FROM ( SELECT
-     EXTRACT(MONTH FROM date) AS mo, max_temp_f
-    FROM weather) AS s
+FROM ( SELECT mo, AVG(max_temp_f) AS mean_high
+  FROM ( SELECT EXTRACT(MONTH FROM date) AS mo, max_temp_f FROM weather) AS s
   GROUP BY mo) AS s1
 ORDER BY mean_high DESC
 LIMIT 2;
 
 -- italy's country code is 10257. Which seasons are being identified in the case statement to determine Italy's total goals scored
 SELECT season,
- SUM(CASE WHEN season = '2010/2011' 
-     OR season = '2012/2013' 
-     THEN home_goal END) AS italy_home_goals
+ SUM(CASE WHEN season = '2010/2011' OR season = '2012/2013' THEN home_goal END) AS italy_home_goals
 FROM match
 WHERE country_id = 10257
 GROUP BY season;
@@ -391,23 +378,14 @@ SELECT month, AVG(CASE WHEN max_wind > 15 THEN 1 ELSE 0 END) AS windy FROM temp
 GROUP BY zip_code
 
 -- use a window function to calculate a partitioned average temperature for each zip code
-SELECT
-  date,
-  zip_code,
-  max_temp_f,
-AVG(max_temp_f)
-OVER
-(PARTITION BY zip_code)
- AS zip_avg
+SELECT date, zip_code, max_temp_f, AVG(max_temp_f)
+OVER (PARTITION BY zip_code) AS zip_avg
 FROM weather
 ORDER BY max_temp_f DESC;
 
 -- create a simple window function to calculate the overall count of bicycle docks at a station without grouping the results
-SELECT 
- name,
- docks,
-COUNT(docks)
 OVER()
+SELECT name, docks, COUNT(docks)
 AS total_docks
 FROM stations;
 
@@ -421,41 +399,100 @@ FROM trip AS t
 GROUP BY start_station
 ORDER BY start_station DESC;
 
--- rank soccer matches in the 2011/2012 season from highest to lowest by total of home_goal and away_goal
-SELECT date, home_goal, away_goal,
-RANK()OVER(ORDER BY home_goal + away_goal DESC) AS ranking
+-- Keep all data from the second table
+SELECT c1.name AS city, 
+	c2.name AS country
+FROM city AS c1
+ RIGHT JOIN country AS c2
+ON c2.id = c1.country_id;
+
+--
+SELECT p.name AS player, COUNT(*) AS num_mom
+FROM match AS m
+LEFT JOIN season AS s
+  ON m.season_id = s.id;
+LEFT JOIN player AS p
+ON m.man_of_the_match = p.id
+WHERE s.season_year = 2016
+GROUP BY p.name
+ORDER BY num_mom DESC;
+
+-- List the venue where each match of the indian Premier League was played.
+SELECT id AS match,  AS venue
 FROM match
-WHERE season = '2011/2012';
+INNER JOIN venue USING (venue_id);
 
--- use a window function to calculate a partitioned average bicylce trip duration by start_station and sub_type
-SELECT start_station, sub_type, duration,
-AVG(duration) OVER (PARTITION BY start_station, sub_type) AS duration_avg
-FROM trips
-ORDER BY duration;
+-- List the venue where each match of the indian Premier League was played. v2
+SELECT a.id, a.venue_id, b.name
+FROM match a
+LEFT JOIN venue b
+ON a.venue_id = b.venue_id;
 
---
+-- From the match table, create a new table containing the match ID, team 1 ID, and team 2 ID for each match.
+SELECT m1.id AS match, m1.team_id AS team_1, m2.team_id AS team_2
+FROM match AS m1
+INNER JOIN  AS m2
+ON m1.id = m2.id
+AND m1.team <> m2.team;
 
+-- Find the average win margin per team in the Indian Premier league 2011 season.
+SELECT name, avg_wm
+FROM team,
+	(SELECT team_id, AVG(win_margin) AS avg_wm FROM match
+	WHERE season_id = 4
+	GROUP BY team_id) AS sub
+WHERE season_id = team_id;
 
---
+-- Inner join on fields 
+SELECT v.name AS venue,
+	c1.name AS city,
+	c2.name AS country
+FROM venue AS v
+INNER JOIN city AS c1
+	ON v.city_id = c1.id
+INNER JOIN country AS c2
+ON c1.country_id = c2.id;
 
+-- Find out on how many positions each player played in the IDL cricket between 2008 and 2016.
+SELECT name,
+  (SELECT COUNT(DISTINCT( role_id ))
+   FROM player_match
+   WHERE player_id = id
+   GROUP BY player_id) AS positions
+   FROM player
+ORDER BY positions DESC;
 
---
+-- Save the outcome of the query to a new table, named city_country.
+SELECT c1.id, 
+	c1.name AS city, 
+	c2.name AS country
+INTO city_country
+from city AS c1
+INNER JOIN country AS c2
+	ON c1.country_id = c2.id;
+SELECT * 
+FROM city_country;
 
+-- Get the role _id for all players that have been "man of the series" in the IPL between 2008 and 2016.
+SELECT name, role_id 
+FROM player_match
+JOIN player
+	ON  player_id = id 
+	AND player_id IN
+		(SELECT man_of_the_series FROM season)
+ORDER BY name;
 
---
+-- Combine the player and season tables to list all players that were not awarded with the Orange Cap after 2012 in the IPL. season and players tables.
+SELECT name FROM player
+WHERE id NOT IN
+	(SELECT orange_cap FROM season 
+	WHERE season_year > 2012);
 
+-- left join T2 to T1 and assign table_2 alias t2 - will return all values from t1 
+SELECT * FROM Table1 t1 
+	LEFT JOIN Table2 t2 ON t1.id = t2.id
 
---
-
-
---
-
-
---
-
-
---
-
-
---
-
+-- filter out values taht are present in table_2 - will return only values taht are in t1 but not in t2
+SELECT * FROM Table1 t1 
+LEFT JOIN Table2 t2 ON t1.id = t2.id 
+WHERE t2.id IS NULL
