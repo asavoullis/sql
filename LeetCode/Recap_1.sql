@@ -150,6 +150,22 @@ WHERE area >= 3000000 OR population >= 25000000
 
 ----------------------------------------------------------------
 
+/* 
+LeetCode Problem #595-2? - Big Countries II:
+Problem Statement: There is a table World with columns name, population, and area. 
+Write a SQL query to find all the names of countries that have a larger population than 
+the combined population of all countries in Europe.
+*/
+SELECT w.name
+FROM World w
+WHERE w.population > (
+    SELECT SUM(population) 
+    FROM World 
+    WHERE continent = 'Europe'
+);
+
+----------------------------------------------------------------
+
 /* sos
 LeetCode Problem #608 - Tree Node:
 Each node in the tree can be one of three types:
@@ -315,14 +331,23 @@ FROM nums1;
 ----------------------------------------------------------------
 
 /* 
-
+Leetcode Problem 1978 - Employees Whose Manager Left the Company:
+Find the IDs of the employees whose salary is strictly less than $30000 and whose manager left the company. 
+When a manager leaves the company, their information is deleted from the Employees table, 
+but the reports still have their manager_id set to the manager that left.
+Return the result table ordered by employee_id.
+Explanation:
+The employees with a salary less than $30000 are 1 (Kalel) and 11 (Joziah).
+Kalel's manager is employee 11, who is still in the company (Joziah).
+Joziah's manager is employee 6, who left the company because there is no row for employee 6 as it was deleted.
 */
-
-----------------------------------------------------------------
-
-/* 
-
-*/
+SELECT employee_id
+FROM Employees
+WHERE salary < 30000 
+AND manager_id NOT IN (
+    SELECT DISTINCT(employee_id) FROM Employees
+)
+ORDER BY employee_id;
 
 ----------------------------------------------------------------
 

@@ -1,7 +1,7 @@
----------------- MYSQL -----------------
+---------------- MYSQL Concepts -----------------
 
 
-    
+-- https://www.coursera.org/learn/concepts-in-sql/
 
 -- DML Commands (Data Maniuplation Language)
 
