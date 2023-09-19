@@ -2,33 +2,6 @@
 -----------------------------------------
 
 /* 
-LeetCode Problem #???182??? - Duplicate Numbers:
-Problem Statement: Write a SQL query to find all numbers that appear at least three times in the Numbers table.
-*/
-SELECT Num AS ConsecutiveNums
-FROM Numbers
-GROUP BY Num
-HAVING COUNT(*) >= 3;
-
-----------------------------------------------------------------
-
-/* 
-LeetCode Problem #???1817??? - Finding the Users Active Minutes:
-Problem Statement: You are given the User table with columns user_id and action_date. 
-Write a SQL query to find the number of users for each active_minute. 
-An active_minute is defined as one user doing an action within that minute.
-*/
-SELECT active_minute, COUNT(DISTINCT user_id) AS 'count'
-FROM (
-    SELECT user_id, 
-           (TIME_TO_SEC(action_date) - TIME_TO_SEC(MIN(action_date) OVER (PARTITION BY user_id ORDER BY action_date))) / 60 AS active_minute
-    FROM User
-) AS subquery
-GROUP BY active_minute;
-
-----------------------------------------------------------------
-
-/* 
 LeetCode Problem #175 - Combine Two Tables:
 Problem Statement: Combine two tables, Person and Address, 
 to retrieve a list of people's names along with their city and state. 
@@ -65,6 +38,18 @@ AS SecondHighestSalary;
 SELECT MAX(salary) AS SecondHighestSalary 
 FROM Employee 
 WHERE salary <> (SELECT MAX(salary) FROM Employee) ;
+
+SELECT CASE
+    WHEN COUNT(*) = 1 THEN NULL
+    ELSE (
+        SELECT DISTINCT salary
+        FROM Employee
+        ORDER BY salary DESC
+        LIMIT 1 OFFSET 1
+    )
+END AS SecondHighestSalary
+FROM Employee;
+
 
 ----------------------------------------------------------------
 
@@ -140,6 +125,74 @@ LEFT JOIN Orders
 ON Customers.Id = Orders.CustomerId
 WHERE Orders.CustomerId IS NULL;
 -- WHERE Orders.Id IS NULL;
+
+----------------------------------------------------------------
+
+/* sos
+196. Delete Duplicate Emails
+Write a solution to delete all duplicate emails, keeping only one unique email with the smallest id.
+For SQL users, please note that you are supposed to write a DELETE statement and not a SELECT one.
+For Pandas users, please note that you are supposed to modify Person in place.
+After running your script, the answer shown is the Person table. 
+The driver will first compile and run your piece of code and then show the Person table. 
+The final order of the Person table does not matter.
+*/
+DELETE e1
+FROM Emails e1
+JOIN Emails e2
+ON e1.email_address = e2.email_address
+AND e1.id > e2.id;
+-- 
+
+
+
+----------------------------------------------------------------
+
+/* Hard SOS
+LeetCode Problem #569 - Median Employee Salary II:
+Problem Statement: Write an SQL query to find the median salary of employees for each company. 
+The result table should contain company_id and median_salary, and must be sorted by company_id in ascending order. 
+The median salary should be rounded to 2 decimal places.
+*/
+SELECT Company_id, 
+       ROUND(
+           IFNULL(
+               (CASE 
+                    WHEN COUNT(*) % 2 = 1 THEN 
+                        (SELECT Salary 
+                         FROM Employee AS E2 
+                         WHERE E1.Company_id = E2.Company_id 
+                         ORDER BY Salary 
+                         LIMIT (COUNT(*) + 1) / 2) 
+                    ELSE 
+                        (SELECT AVG(Salary) 
+                         FROM Employee AS E2 
+                         WHERE E1.Company_id = E2.Company_id 
+                         ORDER BY Salary 
+                         LIMIT COUNT(*) / 2, 2) 
+               END),
+               0.00
+           ), 
+           2) AS median_salary
+FROM Employee AS E1
+GROUP BY Company_id
+ORDER BY Company_id;
+
+
+----------------------------------------------------------------
+
+/*  SOS - HARD CMF Premium
+LeetCode Problem #579 - Find Cumulative Salary of an Employee:
+Problem Statement: Write an SQL query to find the cumulative salary of an employee over a period of time.
+*/
+SELECT a.employee_id, 
+       a.date AS start_date, 
+       MIN(b.date) AS end_date, 
+       SUM(b.salary) AS salary
+FROM Employee AS a, Employee AS b
+WHERE a.employee_id = b.employee_id AND b.date >= a.date
+GROUP BY a.employee_id, a.date
+ORDER BY a.employee_id, a.date;
 
 ----------------------------------------------------------------
 
@@ -292,7 +345,50 @@ WHERE id % 2 = 1;
 
 ----------------------------------------------------------------
 
-/* 
+/*
+LeetCode Problem #1075 - Project Employees I:
+Write an SQL query that reports the average experience years of all the employees for each project, rounded to 2 digits.
+*/
+SELECT p.project_id, ROUND(AVG(e.experience_years),2) AS average_years
+FROM Employee e
+LEFT JOIN Project p
+USING (employee_id)
+WHERE project_id IS NOT NULL
+GROUP BY p.project_id
+ORDER BY project_id;
+
+SELECT p.project_id, ROUND(avg(e.experience_years),2) as average_years
+FROM Project p
+LEFT JOIN Employee e
+on p.employee_id = e.employee_id
+group by p.project_id
+
+SELECT project_id, round(sum(experience_years)/count(experience_years),2) as average_years
+FROM Project p
+JOIN Employee e 
+USING(employee_id)
+GROUP BY 1;
+
+----------------------------------------------------------------
+
+/*
+LeetCode Problem #1075-2? - Project Employees II:
+Problem Statement: Write an SQL query to find all the projects that have the most employees.
+*/
+SELECT project_id
+FROM Project
+GROUP BY project_id
+HAVING COUNT(*) = (
+    SELECT COUNT(*) AS max_employees
+    FROM Project
+    GROUP BY project_id
+    ORDER BY max_employees DESC
+    LIMIT 1
+);
+
+----------------------------------------------------------------
+
+/*  sos
 LeetCode Problem #1179 - Reformat Department Table:
 Problem Statement: Write an SQL query to reformat the table Department 
 to get the result in the format (id, revenue, month), where:
@@ -346,29 +442,6 @@ GROUP BY sale_date, product_id;
 ----------------------------------------------------------------
 
 /* 
-LeetCode Problem #??1766?? - Tree Node2:
-Problem Statement: Write a SQL query to find the id of all the TreeNode that were visited by the user with id = 1 and p_id = 1. 
-Return the result in any order.
-*/
-SELECT DISTINCT t.id
-FROM TreeNode t
-JOIN Use u 
-ON u.tree_id = t.id
-WHERE u.id = 1 AND u.p_id = 1;
-
-----------------------------------------------------------------
-
-/*
-LeetCode Problem #??1818?? - Minimum Absolute Sum Difference:
-Problem Statement: You are given two integer arrays nums1 and nums2 of the same length. 
-Find the minimum value of the absolute sum difference after replacing one element in nums1 with any element in nums2.
-*/
-SELECT MIN(ABS(SUM(nums1) - SUM(nums2)))
-FROM nums1;
-
-----------------------------------------------------------------
-
-/* 
 Leetcode Problem 1978 - Employees Whose Manager Left the Company:
 Find the IDs of the employees whose salary is strictly less than $30000 and whose manager left the company. 
 When a manager leaves the company, their information is deleted from the Employees table, 
@@ -390,6 +463,17 @@ ORDER BY employee_id;
 ----------------------------------------------------------------
 
 /* 
+LeetCode Problem #???182??? - Duplicate Numbers:
+Problem Statement: Write a SQL query to find all numbers that appear at least three times in the Numbers table.
+*/
+SELECT Num AS ConsecutiveNums
+FROM Numbers
+GROUP BY Num
+HAVING COUNT(*) >= 3;
+
+----------------------------------------------------------------
+
+/* 
 LeetCode Problem #??585?? - Investments in 2016:
 Problem Statement: Write a SQL query to find the total investments for each company for each of the years 2016 and 2017. 
 Return the result table in any order.
@@ -400,6 +484,54 @@ SELECT
     SUM(CASE WHEN Year = 2017 THEN Investment ELSE 0 END) AS '2017'
 FROM Investments
 GROUP BY Company;
+
+----------------------------------------------------------------
+
+/*
+LeetCode Problem #?1480?? - Running Sum of 1d Array:
+Problem Statement: Given an array nums, write an SQL query to generate a new array 
+where ans[i] is the sum of all the nums[j] where 0 <= j <= i.
+*/
+SELECT id, 
+       SUM(num) AS running_sum
+FROM RunningSum
+GROUP BY id
+ORDER BY id;
+
+
+----------------------------------------------------------------
+
+/* 
+LeetCode Problem #??1766?? - Tree Node2:
+Problem Statement: Write a SQL query to find the id of all the TreeNode that were visited by the user with id = 1 and p_id = 1. 
+Return the result in any order.
+*/
+SELECT DISTINCT t.id
+FROM TreeNode t
+JOIN Use u 
+ON u.tree_id = t.id
+WHERE u.id = 1 AND u.p_id = 1;
+
+----------------------------------------------------------------
+
+/* HARD SOS
+LeetCode Problem #??1785?? - Minimum Elements to Add to Form a Given Sum:
+Problem Statement: Write an SQL query to find the minimum number of elements 
+that need to be added to an array to form a given sum.
+*/
+SELECT COUNT(*) AS num_elements
+FROM (SELECT x,
+             ROW_NUMBER() OVER (ORDER BY x) AS rn
+      FROM elements) AS t1
+WHERE x <= 3000
+AND x >= 0
+UNION ALL
+SELECT a.x + b.x,
+       a.rn + b.rn
+FROM t1 AS a, t1 AS b
+WHERE a.x + b.x <= 3000
+ORDER BY num_elements
+LIMIT 1;
 
 ----------------------------------------------------------------
 
@@ -415,6 +547,32 @@ FROM (SELECT DISTINCT REGEXP_SUBSTR(word, '[0-9]+') AS val
 WHERE val IS NOT NULL;
 -- REGEXP_SUBSTR("abc456xyz789", '[0-9]+') will match "456" 
 -- because it's the first sequence of one or more consecutive digits in the string.
+
+----------------------------------------------------------------
+
+/* 
+LeetCode Problem #???1817??? - Finding the Users Active Minutes:
+Problem Statement: You are given the User table with columns user_id and action_date. 
+Write a SQL query to find the number of users for each active_minute. 
+An active_minute is defined as one user doing an action within that minute.
+*/
+SELECT active_minute, COUNT(DISTINCT user_id) AS 'count'
+FROM (
+    SELECT user_id, 
+           (TIME_TO_SEC(action_date) - TIME_TO_SEC(MIN(action_date) OVER (PARTITION BY user_id ORDER BY action_date))) / 60 AS active_minute
+    FROM User
+) AS subquery
+GROUP BY active_minute;
+
+----------------------------------------------------------------
+
+/*
+LeetCode Problem #??1818?? - Minimum Absolute Sum Difference:
+Problem Statement: You are given two integer arrays nums1 and nums2 of the same length. 
+Find the minimum value of the absolute sum difference after replacing one element in nums1 with any element in nums2.
+*/
+SELECT MIN(ABS(SUM(nums1) - SUM(nums2)))
+FROM nums1;
 
 ----------------------------------------------------------------
 
@@ -474,28 +632,5 @@ GROUP BY empName
 HAVING SUM(empSalary) < 30000;
 -- HaviHAVINGng clause can contain aggregate functions
 -- HAVING goes after the GROUP BY clause, WHERE clause goes before the GROUP BY clause
-
-
-
-----------------------------------------------------------------
-
-/*  SOS - HARD CMF
-LeetCode Problem #579 - Find Cumulative Salary of an Employee:
-Problem Statement: Write an SQL query to find the cumulative salary of an employee over a period of time.
-*/
-SELECT a.employee_id, 
-       a.date AS start_date, 
-       MIN(b.date) AS end_date, 
-       SUM(b.salary) AS salary
-FROM Employee AS a, Employee AS b
-WHERE a.employee_id = b.employee_id AND b.date >= a.date
-GROUP BY a.employee_id, a.date
-ORDER BY a.employee_id, a.date;
- 
-----------------------------------------------------------------
-
-/* 
-
-*/
 
 ----------------------------------------------------------------
