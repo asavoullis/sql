@@ -30,8 +30,10 @@ GROUP BY active_minute;
 
 /* 
 LeetCode Problem #175 - Combine Two Tables:
-Problem Statement: Combine two tables, Person and Address, to retrieve a list of people's names along with their city and state. 
-If there is no address information for a person, you should still include their name in the result with NULL values for city and state.
+Problem Statement: Combine two tables, Person and Address, 
+to retrieve a list of people's names along with their city and state. 
+If there is no address information for a person, you should still include 
+their name in the result with NULL values for city and state.
 */
 SELECT Person.firstName, Person.lastName, Address.city, Address.state 
 FROM Person
@@ -100,7 +102,8 @@ WHERE e1.Salary > e2.Salary;
 
 /*  sos
 LeetCode Problem #182 - Duplicate Emails:
-Problem Statement: Given a table Person with columns Id and Email, write a SQL query to find all duplicate email addresses.
+Problem Statement: Given a table Person with columns Id and Email, 
+write a SQL query to find all duplicate email addresses.
 */
 SELECT DISTINCT p1.email as Email
 FROM Person p1
@@ -128,7 +131,8 @@ HAVING COUNT(*) > 1;
 
 /* 
 LeetCode Problem #183 - Customers Who Never Order:
-Problem Statement: Write a SQL query to find all customers who never ordered anything from the Customers and Orders tables.
+Problem Statement: Write a SQL query to find all customers who never ordered 
+anything from the Customers and Orders tables.
 */
 SELECT Customers.Name AS Customers
 FROM Customers
@@ -142,7 +146,8 @@ WHERE Orders.CustomerId IS NULL;
 /* 
 LeetCode Problem #595 - Big Countries:
 Problem Statement: There is a table World with columns name, population, and area. 
-Write a SQL query to find all the names of countries with an area of more than 3 million and a population of more than 25 million.
+Write a SQL query to find all the names of countries with an area of more 
+than 3 million and a population of more than 25 million.
 */
 SELECT name, population, area
 FROM World
@@ -163,6 +168,18 @@ WHERE w.population > (
     FROM World 
     WHERE continent = 'Europe'
 );
+
+----------------------------------------------------------------
+
+/* 
+LeetCode Problem #596 - Classes More Than 5 Students:
+Problem Statement: Write an SQL query to find all classes which have more than or equal to 5 students.
+*/
+SELECT class
+FROM courses
+GROUP BY class
+HAVING COUNT(DISTINCT student) >= 5;
+-- The HAVING clause is used to filter the results of grouped data (after grouping and aggregation).
 
 ----------------------------------------------------------------
 
@@ -226,9 +243,11 @@ WHERE description not like 'boring' and id % 2 <> 0;
 ----------------------------------------------------------------
 
 /* 
-LeetCode Problem #620-2 - Not Boring Movies:
-Problem Statement: Write an SQL query to find the id, title, and rating of movies that are not boring. 
-A movie is considered boring if its rating is less than 3, or it is not in the list of movies with odd-numbered ID.
+LeetCode Problem #620-2? - Not Boring Movies:
+Problem Statement: Write an SQL query to find the id, title, 
+and rating of movies that are not boring. 
+A movie is considered boring if its rating is less than 3, 
+or it is not in the list of movies with odd-numbered ID.
 */
 SELECT id, title, rating
 FROM Cinema
@@ -252,7 +271,7 @@ END;
 ----------------------------------------------------------------
 
 /* 
-LeetCode Problem #627-2 - Swap Salary II:
+LeetCode Problem #627-2? - Swap Salary II:
 Problem Statement: Given a table Salary with columns id, employee_id, amount, and bonus, 
 write an SQL query to swap the values of amount and bonus for all records where bonus is greater than amount.
 */
@@ -260,23 +279,42 @@ UPDATE Salary
 SET amount = bonus, bonus = amount
 WHERE bonus > amount;
 
+----------------------------------------------------------------
 
+/*
+LeetCode Problem #627-3? - Swap Salary III:
+Problem Statement: Given a table Salary with columns id, employee_id, amount, and bonus, 
+write an SQL query to swap the values of amount and bonus for all records where id is an odd number.
+*/
+UPDATE Salary
+SET amount = bonus, bonus = amount
+WHERE id % 2 = 1;
 
 ----------------------------------------------------------------
 
 /* 
-LeetCode Problem #??585?? - Investments in 2016:
-Problem Statement: Write a SQL query to find the total investments for each company for each of the years 2016 and 2017. 
-Return the result table in any order.
+LeetCode Problem #1179 - Reformat Department Table:
+Problem Statement: Write an SQL query to reformat the table Department 
+to get the result in the format (id, revenue, month), where:
+id is the department's id.
+month is the month for which the revenue was recorded.
+revenue is the revenue for the department and month.
 */
-SELECT
-    Company,
-    SUM(CASE WHEN Year = 2016 THEN Investment ELSE 0 END) AS '2016',
-    SUM(CASE WHEN Year = 2017 THEN Investment ELSE 0 END) AS '2017'
-FROM Investments
-GROUP BY Company;
-
-
+SELECT id,
+       MAX(IF(month = 'Jan', revenue, NULL)) AS Jan_revenue,
+       MAX(IF(month = 'Feb', revenue, NULL)) AS Feb_revenue,
+       MAX(IF(month = 'Mar', revenue, NULL)) AS Mar_revenue,
+       MAX(IF(month = 'Apr', revenue, NULL)) AS Apr_revenue,
+       MAX(IF(month = 'May', revenue, NULL)) AS May_revenue,
+       MAX(IF(month = 'Jun', revenue, NULL)) AS Jun_revenue,
+       MAX(IF(month = 'Jul', revenue, NULL)) AS Jul_revenue,
+       MAX(IF(month = 'Aug', revenue, NULL)) AS Aug_revenue,
+       MAX(IF(month = 'Sep', revenue, NULL)) AS Sep_revenue,
+       MAX(IF(month = 'Oct', revenue, NULL)) AS Oct_revenue,
+       MAX(IF(month = 'Nov', revenue, NULL)) AS Nov_revenue,
+       MAX(IF(month = 'Dec', revenue, NULL)) AS Dec_revenue
+FROM Department
+GROUP BY id;
 
 ----------------------------------------------------------------
 
@@ -349,6 +387,111 @@ AND manager_id NOT IN (
 )
 ORDER BY employee_id;
 
+----------------------------------------------------------------
+
+/* 
+LeetCode Problem #??585?? - Investments in 2016:
+Problem Statement: Write a SQL query to find the total investments for each company for each of the years 2016 and 2017. 
+Return the result table in any order.
+*/
+SELECT
+    Company,
+    SUM(CASE WHEN Year = 2016 THEN Investment ELSE 0 END) AS '2016',
+    SUM(CASE WHEN Year = 2017 THEN Investment ELSE 0 END) AS '2017'
+FROM Investments
+GROUP BY Company;
+
+----------------------------------------------------------------
+
+/* sos
+LeetCode Problem #??1805?? - Number of Different Integers in a String:
+Problem Statement: Write an SQL query to find the number of different integers 
+in a string containing alphanumeric characters and spaces. 
+Alphanumeric characters are preceded and followed by non-alphanumeric characters.
+*/
+SELECT COUNT(DISTINCT val) AS num
+FROM (SELECT DISTINCT REGEXP_SUBSTR(word, '[0-9]+') AS val
+      FROM Words) AS temp
+WHERE val IS NOT NULL;
+-- REGEXP_SUBSTR("abc456xyz789", '[0-9]+') will match "456" 
+-- because it's the first sequence of one or more consecutive digits in the string.
+
+----------------------------------------------------------------
+
+/* Example 1: nNrgRVIzeHg
+Check how many customers we have in each country
+*/
+SELECT country, COUNT(*)
+FROM customers
+GROUP BY country
+ORDER BY COUNT(*) DESC;
+-- if you have an aggregate function in your select statement,
+-- as well as a regular non aggregate column you need to use the group by clause
+
+----------------------------------------------------------------
+
+/* Example 2:
+Split it also by city
+*/
+SELECT country, city, COUNT(*)
+FROM customers
+GROUP BY country, city
+ORDER BY COUNT(*) DESC;
+-- You also need to include city in your group by clause
+
+----------------------------------------------------------------
+
+/* Example 3:
+Filter on your aggregation to 
+*/
+SELECT country, city, COUNT(*)
+FROM customers
+GROUP BY country, city
+HAVING COUNT(*) > 4
+ORDER BY COUNT(*) DESC;
+
+----------------------------------------------------------------
+
+/* Example 4:
+Filter to get countries that start with A
+*/
+SELECT country, city, COUNT(*)
+FROM customers
+WHERE country_name LIKE 'A%'
+GROUP BY country, city
+--GROUP BY 1,2
+HAVING COUNT(*) > 4
+ORDER BY COUNT(*) DESC;
+
+----------------------------------------------------------------
+
+/* Example 5: shorts/0R9JBUfWvkg
+Find employees that make less than 30k per year
+*/
+SELECT empName
+FROM employees
+GROUP BY empName
+HAVING SUM(empSalary) < 30000;
+-- HaviHAVINGng clause can contain aggregate functions
+-- HAVING goes after the GROUP BY clause, WHERE clause goes before the GROUP BY clause
+
+
+
+----------------------------------------------------------------
+
+/*  SOS - HARD CMF
+LeetCode Problem #579 - Find Cumulative Salary of an Employee:
+Problem Statement: Write an SQL query to find the cumulative salary of an employee over a period of time.
+*/
+SELECT a.employee_id, 
+       a.date AS start_date, 
+       MIN(b.date) AS end_date, 
+       SUM(b.salary) AS salary
+FROM Employee AS a, Employee AS b
+WHERE a.employee_id = b.employee_id AND b.date >= a.date
+GROUP BY a.employee_id, a.date
+ORDER BY a.employee_id, a.date;
+ 
 ----------------------------------------------------------------
 
 /* 
