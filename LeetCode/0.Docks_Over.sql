@@ -8,6 +8,9 @@ San Jose C  15
 Santa Clar  11
 */
 
+-- What is the purpose of a window function in SQL?
+-- To perform calculations based on a result set, or a window, of data
+
 SELECT
     name,
     docks,
