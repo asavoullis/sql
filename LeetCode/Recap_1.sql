@@ -142,9 +142,10 @@ FROM Emails e1
 JOIN Emails e2
 ON e1.email_address = e2.email_address
 AND e1.id > e2.id;
--- 
-
-
+-- This additional condition is crucial to eliminate duplicates. 
+-- It ensures that we only keep the row with the highest "id" value 
+-- within each group of duplicate email addresses. 
+-- Rows with lower "id" values are considered duplicates and will be deleted.
 
 ----------------------------------------------------------------
 
